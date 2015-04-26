@@ -2,19 +2,23 @@
 import os
 from optparse import OptionParser
 
-## Defaults
+## Global variables
 flags = ""
 outputFile = ""
+directory = ""
 
 def parseCommandline():
-    global flags, outputFile 
+    global flags, outputFile, directory 
     # Get commandline arguments
-    parser = OptionParser(usage="Usage: pymake.py [-f \"Flags\" -o Output File]", version="0.1")
+    parser = OptionParser(usage="Usage: pymake.py [-f \"Flags\" -o Output File -d Directory]", version="PyMake Version 0.1.1")
     parser.add_option("-f", "--flags", dest="flags", help="Extra flags for the compiler. Typed within quotes. For example, \"-Wall\". Default is \"-o [fileName]\"", default="", metavar="Flags")
+    
     parser.add_option("-o", "--output", dest="outputFile", help="Output file name from compiler. Default is a.out", default="a.out", metavar="outputFile") 
+    parser.add_option("-d", "--directory", dest="directory", help="Directory for pymake to create Makefile for. Default is ./", default="./", metavar="directory") 
     (options, args) = parser.parse_args()
     outputFile = options.outputFile
     flags = options.flags
+    directory = options.directory
 
 def files():
     allFiles = [f for f in os.listdir('.') if os.path.isfile(f)]
@@ -59,6 +63,7 @@ def writeToMakefile(fileContents):
 
 def start():
     parseCommandline()
+    os.chdir(directory)
     fileList = files()
     fileNames = ""
     for f in fileList:

@@ -3,7 +3,7 @@
 
 Pymake generates a Makefile for the files of the current working directory. Currently works with C and C++ files and can use gcc or g++ for the compiler. 
 
-## Current version: 0.1.1 
+## Current version: 0.1.2 
 
 ## Usage: pymake.py [-f "Flags" -o Output File -d Directory]  
 

@@ -1,7 +1,7 @@
 # PyMake
 ## A Makefile Generator 
 
-PyMake generates a Makefile for the files of the current working directory or the specified directory. Currently works with C/C++ files. You can declare your compiler or PyMake will try to detect gcc or g++ for the compiler.  PyMake builds a Makefile that uses variables, so you don't have to rerun PyMake to modify your Makefile.
+PyMake generates a Makefile for the files of the current working directory or the specified directory. Currently works with C, C++, Fortran and Go files. You can declare your compiler or PyMake will try to detect `gcc`, `g++`, `gfortran` or `go build` for the compiler.  PyMake builds a Makefile that uses variables, so you don't have to rerun PyMake to modify your Makefile.
 
 
 ###Usage: pymake.py [ -c Compiler ] [ -d Source Directory ] [ -f "Flags" ] [ -i Install Directory ] [ -o Output File ] 

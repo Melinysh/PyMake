@@ -13,19 +13,19 @@ show program's version number and exit
 -h, --help  
 show this help message and exit   
 
--f FLAGS, --flags=FLAGS  
+-f, --flags 
 flags for the compiler and typed within quotes  
 
--o OUTPUTFILE  
+-o  
 output file name from compiler. Default: a.out  
 
--d DIRECTORY, --directory=DIRECTORY  
+-d, --directory=  
   directory for pymake to create Makefile for. Default: ./  
 
--c COMPILER, --compiler=COMPILER  
+-c, --compiler=
   set compiler to use. Default: PyMake will look at your files and guess  
 
--i INSTALLPATH, --install-dir=INSTALLPATH  
+-i, --install-dir= 
 directory for 'make install'. Default: /usr/local/bin  
 
 

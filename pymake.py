@@ -4,35 +4,50 @@ from optparse import OptionParser
 from ConfigParser import SafeConfigParser
 
 ## Global variables
+VERSION = "0.4"
 flags = ""
 outputFile = ""
 directory = ""
 compiler = ""
 installPath = ""
-configOptions = {}
+configFile = ""
+verbose = False
+
+def debugPrint(*args):
+    if verbose:
+        for a in args:
+            print(a),
+        print("")
 
 def parseCommandline():
-    global flags, outputFile, directory, compiler, installPath
+    global flags, outputFile, directory, compiler, installPath, configFile, verbose
     # Get commandline arguments
-    parser = OptionParser(usage="Usage: pymake.py [ -c Compiler ] [ -d Source Directory ] [ -f \"Flags\" ] [ -i Install Directory ] [ -o Output File ]", version="PyMake Version 0.3")
-    parser.add_option("-f", "--flags", dest="flags", help="flags for the compiler and typed within quotes", default="") 
-    parser.add_option("-o", dest="outputFile", help="output file name from compiler. Default: a.out", default="a.out") 
+    parser = OptionParser(usage="Usage: pymake.py [ -cdfihoxv ]", version="PyMake Version " + VERSION)
+    parser.add_option("-c", "--compiler", dest="compiler", help="set compiler to use. Default: PyMake will look at your files and guess, if it can't then it will use gcc", default="") 
     parser.add_option("-d", "--directory", dest="directory", help="directory for pymake to create Makefile for. Default: ./", default="./") 
-    parser.add_option("-c", "--compiler", dest="compiler", help="set compiler to use. Default: PyMake will look at your files and guess", default="") 
+    parser.add_option("-f", "--flags", dest="flags", help="flags for the compiler and typed within quotes", default="") 
     parser.add_option("-i", "--install-dir", dest="installPath", help="directory for 'make install'. Default: /usr/local/bin", default="/usr/local/bin") 
+    parser.add_option("-o", "--output-target", dest="outputFile", help="output file name from compiler. Default: a.out", default="a.out") 
+    parser.add_option("-v", dest="verbose", help="Enable verbose output", action="store_true")
+    parser.add_option("-x", "--config-file", dest="configFile", help="path to pymake config file. Default: ~/.pymake.cfg", default="~/.pymake.cfg")
+
     (options, args) = parser.parse_args()
     outputFile = options.outputFile
     flags = options.flags
     directory = options.directory
     compiler = options.compiler
     installPath = options.installPath
+    configFile = options.configFile 
+    verbose = options.verbose
 
 def parseConfig(fileType):
     global flags, compiler, installPath
     conf = SafeConfigParser()
-    f = conf.read(os.path.expanduser("~/pymake.cfg"))
+    f = conf.read(os.path.expanduser(configFile))
     if len(f) == 0:
+        debugPrint("Unable to find config file at " + configFile)
         return False
+    debugPrint("Config file found at " + configFile)
     confFlags = confCompiler = confInstallDir = ""
     try:
       confFlags = conf.get(fileType, "flags")
@@ -60,16 +75,16 @@ def files():
     sourceFiles = []
     for f in allFiles:
         if "." in f and isSourceFile(f):
-            sourceFiles.append(f)
+            sourceFiles.append(f.lower())
     return sourceFiles
 
 # Checks to see if the file extention should be included in file list for compiler
 def isSourceFile(fileName):
     if fileName.startswith("."):
         return False 
-    elif fileName.split(".")[-1] in ["plist", "out", "log", "zip", "gz", "h", "hpp", "hxx", "hh", "db", "md", "sh", "txt", "pdf", "doc", "html"]:
-        return False
-    return True
+    elif fileName.split(".")[-1] in ["c", "cc", "cpp", "cxx", "cp", "go", "f", "f90", "f95", "f03", "f15", "for", "s", "asm"]: 
+        return True 
+    return False
 
 def typeOfFile(fileName):
     return fileName[(fileName.index('.'))+1:]
@@ -77,18 +92,21 @@ def typeOfFile(fileName):
 def baseFileName(fileName):
     return fileName[:(fileName.index('.'))]
 
-def compilerName(fileType):
-    if fileType == "c" or fileType == "s" or fileType == "asm":
-        return "gcc"
-    elif fileType == "cpp" or fileType == "cxx" or fileType == "cp" or fileType == "cc":
-        return "g++"
-    elif fileType == "f" or fileType == "F" or fileType == "FOR":
-        return "gfortran"
+def setCompiler(fileType):
+    global compiler
+    if compiler != "":
+        return 
+    if fileType in ["c", "s", "asm"]:
+        compiler = "gcc"
+    elif fileType in ["cc", "cpp", "cxx", "cp"]: 
+        compiler = "g++"
+    elif fileType in ["f", "f90", "f95", "f03", "f15", "for"]:
+        compiler = "gfortran"
     elif fileType == "go":
-        return "go build"
+        compiler = "go build"
     else:
         print("File type '" + fileType + "' not supported yet. Defaulting to gcc.")
-        return "gcc"
+        compiler = "gcc"
 
 def flagsForCompiler(compilerName):
     compilerVarName = ""
@@ -117,20 +135,26 @@ def flagsForCompiler(compilerName):
 
 
 
-def generateFileContents(fileNames, compilerName):
-    fileContents = "# Generated by pymake version 0.3\n# PyMake was written by Stephen Melinyshyn | github.com/Melinysh/PyMake\n\n"
+def generateFileContents(fileType, compilerName):
+    fileContents = "# Generated by pymake version " + VERSION +"\n# PyMake was written by Stephen Melinyshyn | github.com/Melinysh/PyMake\n\n"
    
     # Compiler specific variables
     fileContents += flagsForCompiler(compilerName)
-
+    fileContents += "SOURCES := $(wildcard *." + fileType + ")\n"
+    fileContents += "OBJS := $(patsubst %." + fileType + ", %.o, $(SOURCES))\n"
     fileContents += "INSTALL_PATH := " + installPath + "\n"
-    fileContents += "TARGET := " + outputFile + "\n"
-    fileContents += "OBJECTS := " + fileNames + "\n\n"
-
-    fileContents += "all: $(TARGET)\n\n"
-    fileContents += "$(TARGET): $(OBJECTS)\n"
-    fileContents += "\t$(PYMAKE_COMPILER) $(PYMAKE_COMPILER_FLAGS) -o $(TARGET) $(OBJECTS)\n"
+    fileContents += "TARGET := " + outputFile + "\n\n"
     
+    fileContents += "all: $(TARGET)\n\n"
+
+    # Main compilation
+    fileContents += "$(TARGET): $(OBJS)\n"
+    fileContents += "\t$(PYMAKE_COMPILER) -o $(TARGET) $^\n\n"
+    
+    # Object files
+    fileContents += "%.o: %.c\n"
+    fileContents +="\t$(PYMAKE_COMPILER) $< $(PYMAKE_COMPILER_FLAGS) -o $@\n"
+
     ## Install
     fileContents += "\n"
     fileContents += "install: $(TARGET)\n"
@@ -144,7 +168,7 @@ def generateFileContents(fileNames, compilerName):
     ## Clean
     fileContents += "\n"
     fileContents += "clean:" + "\n"
-    fileContents += "\t" + "-rm $(TARGET)\n"
+    fileContents += "\t" + "-rm $(TARGET) $(OBJS)\n"
 
     return fileContents 
 
@@ -162,16 +186,19 @@ def start():
         print("Whoops! PyMake can't find any files that would belong in a Makefile.")
         print("Are you sure you're in the right directory?")
         exit(1)
-    fileContents = ""
-    fileNames = ""
-    for f in fileList:
-        fileNames += f + " "
+        
+    debugPrint("Files found: ", fileList)
     fileType = typeOfFile(fileList[0])
-    if compiler == "":
-        compiler = compilerName(fileType)
+    debugPrint("Pymake believes the correct filetype is " + fileType) 
+    setCompiler(fileType) 
+    debugPrint("Compiler is set to " + compiler)
+
     parseConfig(fileType)
-    fileContents = generateFileContents(fileNames, compiler)
+
+    fileContents = generateFileContents(fileType, compiler)
     writeToMakefile(fileContents)
+    debugPrint("Successfully generated Makefile.")
+
     exit(0)
 
 start()

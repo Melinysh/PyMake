@@ -4,7 +4,7 @@ from optparse import OptionParser
 from ConfigParser import SafeConfigParser
 
 ## Global variables
-VERSION = "0.4"
+VERSION = "0.4.1"
 flags = ""
 outputFile = ""
 directory = ""
@@ -28,7 +28,7 @@ def parseCommandline():
     parser.add_option("-f", "--flags", dest="flags", help="flags for the compiler and typed within quotes", default="") 
     parser.add_option("-i", "--install-dir", dest="installPath", help="directory for 'make install'. Default: /usr/local/bin", default="/usr/local/bin") 
     parser.add_option("-o", "--output-target", dest="outputFile", help="output file name from compiler. Default: a.out", default="a.out") 
-    parser.add_option("-v", dest="verbose", help="Enable verbose output", action="store_true")
+    parser.add_option("-v", dest="verbose", help="enable verbose output", action="store_true")
     parser.add_option("-x", "--config-file", dest="configFile", help="path to pymake config file. Default: ~/.pymake.cfg", default="~/.pymake.cfg")
 
     (options, args) = parser.parse_args()
@@ -152,7 +152,7 @@ def generateFileContents(fileType, compilerName):
     fileContents += "\t$(PYMAKE_COMPILER) -o $(TARGET) $^\n\n"
     
     # Object files
-    fileContents += "%.o: %.c\n"
+    fileContents += "%.o: %." + fileType + "\n"
     fileContents +="\t$(PYMAKE_COMPILER) $< $(PYMAKE_COMPILER_FLAGS) -o $@\n"
 
     ## Install

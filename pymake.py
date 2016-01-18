@@ -4,13 +4,14 @@ from optparse import OptionParser
 from ConfigParser import SafeConfigParser
 
 ## Global variables
-VERSION = "0.4.1"
+VERSION = "0.4.2"
 flags = ""
 outputFile = ""
 directory = ""
 compiler = ""
 installPath = ""
 configFile = ""
+fileType = ""
 verbose = False
 
 def debugPrint(*args):
@@ -20,14 +21,15 @@ def debugPrint(*args):
         print("")
 
 def parseCommandline():
-    global flags, outputFile, directory, compiler, installPath, configFile, verbose
+    global flags, outputFile, directory, compiler, installPath, configFile, verbose, fileType 
     # Get commandline arguments
-    parser = OptionParser(usage="Usage: pymake.py [ -cdfihoxv ]", version="PyMake Version " + VERSION)
+    parser = OptionParser(usage="Usage: pymake.py [ -cdfihotvx ]", version="PyMake Version " + VERSION)
     parser.add_option("-c", "--compiler", dest="compiler", help="set compiler to use. Default: PyMake will look at your files and guess, if it can't then it will use gcc", default="") 
     parser.add_option("-d", "--directory", dest="directory", help="directory for pymake to create Makefile for. Default: ./", default="./") 
     parser.add_option("-f", "--flags", dest="flags", help="flags for the compiler and typed within quotes", default="") 
     parser.add_option("-i", "--install-dir", dest="installPath", help="directory for 'make install'. Default: /usr/local/bin", default="/usr/local/bin") 
     parser.add_option("-o", "--output-target", dest="outputFile", help="output file name from compiler. Default: a.out", default="a.out") 
+    parser.add_option("-t", "--file-type", dest="fileType", help="the file type of your source files (ex. c, cpp, go). Default: pymake will look at your files and guess", default = "")
     parser.add_option("-v", dest="verbose", help="enable verbose output", action="store_true")
     parser.add_option("-x", "--config-file", dest="configFile", help="path to pymake config file. Default: ~/.pymake.cfg", default="~/.pymake.cfg")
 
@@ -39,6 +41,7 @@ def parseCommandline():
     installPath = options.installPath
     configFile = options.configFile 
     verbose = options.verbose
+    fileType = options.fileType
 
 def parseConfig(fileType):
     global flags, compiler, installPath
@@ -152,7 +155,7 @@ def generateFileContents(fileType, compilerName):
     fileContents += "\t$(PYMAKE_COMPILER) -o $(TARGET) $^\n\n"
     
     # Object files
-    fileContents += "%.o: %." + fileType + "\n"
+    fileContents += "%.o: %.c\n"
     fileContents +="\t$(PYMAKE_COMPILER) $< $(PYMAKE_COMPILER_FLAGS) -o $@\n"
 
     ## Install
@@ -177,19 +180,24 @@ def writeToMakefile(fileContents):
     makefile.write(fileContents)
     makefile.close()
 
-def start():
-    global compiler, fileType
-    parseCommandline()
-    os.chdir(directory)
-    fileList = files()
-    if len(fileList) == 0:
+
+def guessFileType(files):
+    global fileType
+    if len(files) == 0:
         print("Whoops! PyMake can't find any files that would belong in a Makefile.")
         print("Are you sure you're in the right directory?")
         exit(1)
-        
+    fileType = typeOfFile(files[0])
+ 
+
+def start():
+    parseCommandline()
+    os.chdir(directory)
+    fileList = files() 
     debugPrint("Files found: ", fileList)
-    fileType = typeOfFile(fileList[0])
-    debugPrint("Pymake believes the correct filetype is " + fileType) 
+    if fileType == "":
+        guessFileType(fileList)
+    debugPrint("Pymake believes the filetype is " + fileType) 
     setCompiler(fileType) 
     debugPrint("Compiler is set to " + compiler)
 

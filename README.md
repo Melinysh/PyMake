@@ -5,7 +5,7 @@ PyMake generates a Makefile for the files of the current working directory or th
 
 ### Usage
 ```
-Usage: pymake.py [ -cdfihoxv ]
+Usage: pymake.py [ -cdfihotvx ]
 
 Options:
   --version             show program's version number and exit
@@ -22,6 +22,9 @@ Options:
                         directory for 'make install'. Default: /usr/local/bin
   -o OUTPUTFILE, --output-target=OUTPUTFILE
                         output file name from compiler. Default: a.out
+  -t FILETYPE, --file-type=FILETYPE
+                        the file type of your source files (ex. c, cpp, go).
+                        Default: pymake will look at your files and guess
   -v                    enable verbose output
   -x CONFIGFILE, --config-file=CONFIGFILE
                         path to pymake config file. Default: ~/.pymake.cfg

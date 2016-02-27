@@ -4,7 +4,7 @@ from optparse import OptionParser
 from ConfigParser import SafeConfigParser
 
 ## Global variables
-VERSION = "0.4.3"
+VERSION = "0.4.4"
 flags = ""
 outputFile = ""
 directory = ""
@@ -138,7 +138,7 @@ def flagsForCompiler(compilerName):
 
 
 def goMakefile():
-    fileContents = "all: $(TARGET)\n\n"
+    fileContents = "\nall: $(TARGET)\n"
 
     # Main compilation
     fileContents += "$(TARGET): $(SOURCES)\n"
@@ -156,7 +156,7 @@ def cBasedMakefile():
     fileContents += "all: $(TARGET)\n\n"
      
     # Main compilation
-    fileContents += "$(TARGET): $(OBJS)\n" 
+    fileContents += "$(TARGET): $(OBJS)\n\n" 
     fileContents += "\t$(PYMAKE_COMPILER) -o $(TARGET) $^\n\n"
     
     # Object files
@@ -178,12 +178,17 @@ def generateFileContents(fileType, compilerName):
     fileContents += flagsForCompiler(compilerName)
     fileContents += "SOURCES := $(wildcard *." + fileType + ")\n"
     fileContents += "INSTALL_PATH := " + installPath + "\n"
-    fileContents += "TARGET := " + outputFile + "\n\n"
+    fileContents += "TARGET := " + outputFile + "\n"
    
     if fileType == "go":
         fileContents += goMakefile()
     else:
         fileContents += cBasedMakefile()
+
+    ## Run
+    fileContents += "\n"
+    fileContents += "run: all\n"
+    fileContents += "\t./$(TARGET)\n"
 
     ## Install
     fileContents += "\n"

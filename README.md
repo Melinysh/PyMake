@@ -39,6 +39,9 @@ Options:
 #### Version 0.4.2:
 - Added `-t` flag for specifying your source file type
 
+#### Version 0.4.4:
+- Added `make run` so your project can be built and run in one command
+
 ### Using the configuration file
 Since version 0.3, PyMake supports reading a configuration file. This file, `.pymake.cfg`, can be placed in your home directory or specified with the `-x` flag. If found, PyMake will use the configuration options (compiler, flags, installation directory) over passed commandline options. The file should be formatted similar to a `.ini` file with sections named after the file extension of that programming language (ex. `c`, `cpp`). See the sample configuration file for an example. Future revisions to PyMake will increase the flexibility of the use of a configuration file. 
 

@@ -58,7 +58,7 @@ Since version 0.3, PyMake supports reading a configuration file. This file, `.py
 ###License 
 The MIT License (MIT)
 
-Copyright (c)  2016 Stephen Melinyshyn
+Copyright (c)  2017 Stephen Melinyshyn
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

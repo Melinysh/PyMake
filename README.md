@@ -55,10 +55,10 @@ Options:
 Since version 0.3, PyMake supports reading a configuration file. This file, `.pymake.cfg`, can be placed in your home directory or specified with the `-x` flag. If found, PyMake will use the configuration options (compiler, flags, installation directory) over passed commandline options. The file should be formatted similar to a `.ini` file with sections named after the file extension of that programming language (ex. `c`, `cpp`). See the sample configuration file for an example. Future revisions to PyMake will increase the flexibility of the use of a configuration file. 
 
 
-###License 
+### License 
 The MIT License (MIT)
 
-Copyright (c)  2017 Stephen Melinyshyn
+Copyright (c)  2018 Stephen Melinyshyn
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

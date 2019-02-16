@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import os
 from optparse import OptionParser
-from configparser import SafeConfigParser
+from configparser import ConfigParser 
 
 ## Global variables
-VERSION = "0.5"
+VERSION = "0.6"
 flags = ""
 outputFile = ""
 directory = ""
@@ -19,7 +19,7 @@ verbose = False
 def debugPrint(*args):
     if verbose:
         for a in args:
-            print(a),
+            print((a), end=' ')
         print("")
 
 def parseCommandline():
@@ -80,7 +80,7 @@ def parseConfig(fileType):
 
 
 def files():
-    print(os.getcwd())
+    print((os.getcwd()))
     allFiles = [f for f in os.listdir(os.getcwd() + "/" + srcdir) if os.path.isfile(srcdir + "/" +f)]
     sourceFiles = []
     for f in allFiles:
@@ -115,7 +115,7 @@ def setCompiler(fileType):
     elif fileType == "go":
         compiler = "go build"
     else:
-        print("File type '" + fileType + "' not supported yet. Defaulting to gcc.")
+        print(("File type '" + fileType + "' not supported yet. Defaulting to gcc."))
         compiler = "gcc"
 
 def flagsForCompiler(compilerName):

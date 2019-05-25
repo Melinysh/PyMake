@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 from optparse import OptionParser
 from configparser import ConfigParser 
 
 ## Global variables
-VERSION = "0.6"
+VERSION = "0.6.1"
 flags = ""
 outputFile = ""
 directory = ""

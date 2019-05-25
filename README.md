@@ -36,6 +36,9 @@ Options:
 
 ### Recent updates
 
+#### Version 0.6.2:
+- Use python3 as default
+
 #### Version 0.6:
 - Python 3 support
  

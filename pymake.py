@@ -4,7 +4,7 @@ from optparse import OptionParser
 from configparser import ConfigParser 
 
 ## Global variables
-VERSION = "0.6.1"
+VERSION = "0.6.2"
 flags = ""
 outputFile = ""
 directory = ""

@@ -51,7 +51,7 @@ def parseCommandline():
 
 def parseConfig(fileType):
     global flags, compiler, installPath
-    conf = SafeConfigParser()
+    conf = ConfigParser()
     f = conf.read(os.path.expanduser(configFile))
     if len(f) == 0:
         debugPrint("Unable to find config file at " + configFile)
